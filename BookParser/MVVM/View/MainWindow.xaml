@@ -7,15 +7,13 @@
         xmlns:local="clr-namespace:BookParser.MVVM.ViewModel"
         mc:Ignorable="d"
         Width="400"
-        Height="200"
+        Height="120"
         WindowStyle="None"
         Background="Transparent"
         AllowsTransparency="True"
         WindowStartupLocation="CenterScreen"
         MouseDown="Window_MouseDown"
-        hc:Theme.Skin="Dark"
-        d:DataContext="{d:DesignInstance local:MainWindowViewModel,
-                                         IsDesignTimeCreatable=True}">
+        hc:Theme.Skin="Dark">
     <Grid>
         <Border CornerRadius="12"
                 BorderThickness="0.8">
@@ -137,14 +135,15 @@
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="27"/>
-                <RowDefinition Height="115"/>
+                <RowDefinition Height="30"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="1">
-                <ProgressBar Value="{Binding ParseProgressValue}" 
-                             Height="25" 
-                             Width="350"/>
+                <hc:LoadingLine x:Name="IsParseLoad" 
+                                Foreground="#00f2ff" 
+                                Visibility="Hidden"
+                                Style="{StaticResource LoadingLineLarge}"/>
             </Grid>
 
             <Grid Grid.Row="2">

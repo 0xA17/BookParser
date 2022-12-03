@@ -3,6 +3,7 @@ using BookParser.MVVM.Model;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using System.Windows;
 
 namespace BookParser.MVVM.ViewModel
 {
@@ -13,15 +14,17 @@ namespace BookParser.MVVM.ViewModel
         private Boolean _parseIsRunning;
         public Boolean ParseIsRunning
         {
-            get => _parseIsRunning;
-            set => SetProperty(ref _parseIsRunning, value);
-        }
-
-        private Int16 _parseProgressValue;
-        public Int16 ParseProgressValue
-        {
-            get => _parseProgressValue;
-            set => SetProperty(ref _parseProgressValue, value);
+            get
+            {
+                return _parseIsRunning;
+            }
+            set 
+            {
+                SetProperty(ref _parseIsRunning, value);
+                MainWindow.GetInstance().IsParseLoad.Visibility = _parseIsRunning 
+                                                                ? Visibility.Visible 
+                                                                : Visibility.Hidden;
+            }
         }
 
         public IAsyncRelayCommand ExecuteParsing { get; }
@@ -68,14 +71,7 @@ namespace BookParser.MVVM.ViewModel
             ParseIsRunning = true;
             UpdateCommandStatus();
 
-            var progress = new Progress<ProgressInfo>();
-
-            progress.ProgressChanged += (sender, e) =>
-            {
-                ParseProgressValue = e.ParseProgressValue;
-            };
-
-            await MainWindowWorkModel.PerformParsingAsync(progress);
+            await MainWindowWorkModel.PerformParsingAsync();
 
             ParseIsRunning = false;
             UpdateCommandStatus();

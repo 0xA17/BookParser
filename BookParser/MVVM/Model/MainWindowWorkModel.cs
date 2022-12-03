@@ -2,10 +2,11 @@
 using System.Windows;
 using System.Threading;
 using System.Threading.Tasks;
+using BookParser.Core.Parser;
 
 namespace BookParser.MVVM.Model
 {
-    public class MainWindowWorkModel
+    public class MainWindowWorkModel : HTMLParser
     {
         #region Методы
 
@@ -15,30 +16,40 @@ namespace BookParser.MVVM.Model
 
         private static CancellationTokenSource _parseCancelTokenSrc;
 
-        public static async Task PerformParsingAsync(IProgress<ProgressInfo> progress)
+        public static async Task PerformParsingAsync()
         {
             using (_parseCancelTokenSrc = new CancellationTokenSource())
             {
                 try
                 {
-                    for (Int16 i = 0; i < 100; i++)
-                    {
-                        _parseCancelTokenSrc.Token.ThrowIfCancellationRequested();
-
-                        await Task.Delay(100);
-
-                        progress.Report(new ProgressInfo(i));
-                    }
-
-                    progress.Report(new ProgressInfo(0));
+                    _parseCancelTokenSrc.Token.ThrowIfCancellationRequested();
+                    await InitBooksParse("https://litmore.ru/17611-antropolog-na-marse.html", 
+                                         "https://litmore.ru/17833-neksus.html");
                 }
                 catch (OperationCanceledException)
                 {
-                    progress.Report(new ProgressInfo(0));
                     return;
                 }
-
             }
+        }
+
+        private static async Task InitBooksParse(params String[] urls)
+        {
+            if (urls is null ||
+                urls.Length == 0)
+            {
+                return;
+            }
+
+            String[] htmlPages = new String[urls.Length];
+
+            for (Int32 i = 0; i < urls.Length; i++)
+            {
+                htmlPages[i] = await GetHtmlFromUrl(urls[i]);
+                await Task.Delay(1000);
+            }
+
+            BuildBookModels(htmlPages);
         }
 
         public static void CancelParse()

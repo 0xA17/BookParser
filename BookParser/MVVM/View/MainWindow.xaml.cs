@@ -10,10 +10,18 @@ namespace BookParser
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow Instance;
+
         public MainWindow()
         {
+            Instance = this;
             InitializeComponent();
             DataContext = new MainWindowViewModel();
+        }
+
+        public static MainWindow GetInstance()
+        {
+            return Instance;
         }
 
         private void Window_MouseDown(Object sender, MouseButtonEventArgs e)
