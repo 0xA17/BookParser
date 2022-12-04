@@ -70,7 +70,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\Command\RelayCommand.cs" />
-    <Compile Include="Core\Parser\HTMLParser.cs" />
+    <Compile Include="Core\Parser\HTMLBookParser.cs" />
     <Compile Include="Core\Web\HttpTools.cs" />
     <Compile Include="MVVM\Model\BookModel.cs" />
     <Compile Include="MVVM\Model\MainWindowWorkModel.cs" />

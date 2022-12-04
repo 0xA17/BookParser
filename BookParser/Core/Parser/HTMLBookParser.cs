@@ -9,10 +9,11 @@ using BookParser.MVVM.Model;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Threading;
+using System.Security.Policy;
 
 namespace BookParser.Core.Parser
 {
-    public class HTMLParser : HttpTools
+    public class HTMLBookParser : HttpTools
     {
         private static BookModel ParseBookModel(HtmlDocument html)
         {
@@ -106,30 +107,92 @@ namespace BookParser.Core.Parser
             return null;
         }
 
-        public static ObservableCollection<BookModel> BuildBookModels(params String[] htmlPages)
+        protected static async Task<ObservableCollection<HtmlDocument>> SelectionBooksCheck(HtmlDocument[] htmlDocumentPages, String targetXPath)
+        {
+            if (htmlDocumentPages is null ||
+                String.IsNullOrEmpty(targetXPath))
+            {
+                return null;
+            }
+
+            var bookPages = new ObservableCollection<HtmlDocument>();
+            var selectionPages = new ObservableCollection<HtmlDocument>();
+
+            foreach (var page in htmlDocumentPages)
+            {
+                if (SelectNodeInnerText(page, targetXPath) is not null)
+                {
+                    bookPages.Add(page);
+                    continue;
+                }
+
+                selectionPages.Add(page);
+            }
+
+            if (selectionPages.Count == 0)
+            {
+                return bookPages;
+            }
+
+            var bookUrls = new ObservableCollection<String[]>();
+
+            foreach (var page in selectionPages)
+            {
+                bookUrls.Add(GetBooksUrls(page));
+            }
+
+            var bookHtmlDocuments = new ObservableCollection<HtmlDocument[]>();
+
+            foreach (var page in bookUrls)
+            {
+                bookHtmlDocuments.Add(GetLoadedHtmlDoc(htmlPages: await GetHtmlPagesFromUrls(page)));
+            }
+
+            foreach (var bookHtmlDocument in bookHtmlDocuments)
+            {
+                foreach (var bookPage in bookHtmlDocument)
+                {
+                    bookPages.Add(bookPage);
+                }
+            }
+
+            return bookPages;
+        }
+
+        private static String[] GetBooksUrls(HtmlDocument htmlDocument)
+        {
+            if (htmlDocument is null)
+            {
+                return null;
+            }
+
+            return htmlDocument.DocumentNode?.
+                   SelectNodes("//a[@href]")?.
+                   Where(x => x.Attributes.Last().Name == "title" && x.ParentNode.ChildNodes.Count == 1)?.
+                   Select(x => x.Attributes.First().Value)?.ToArray() ?? null;
+        }
+
+        protected static async Task<ObservableCollection<BookModel>> BooksParse(params String[] urls)
+        {
+            if (urls is null ||
+                urls.Length == 0)
+            {
+                return null;
+            }
+
+            return await BuildBookModels(htmlPages: await GetHtmlPagesFromUrls(urls));
+        }
+
+        protected static async Task<ObservableCollection<BookModel>> BuildBookModels(params String[] htmlPages)
         {
             if (htmlPages is null ||
                 htmlPages.Length == 0)
             {
                 return null;
             }
-
-            var htmlDocument = new HtmlDocument[htmlPages.Length];
-
-            for (Int32 i = 0; i < htmlPages.Length; i++)
-            {
-                htmlDocument[i] = new HtmlDocument();
-
-                try
-                {
-                    htmlDocument[i].LoadHtml(htmlPages[i]);
-                }
-                catch
-                {
-                    continue;
-                }
-            }
-
+            
+            var htmlDocument = await SelectionBooksCheck(htmlDocumentPages: GetLoadedHtmlDoc(htmlPages), 
+                                                   targetXPath: "//div[@class='tegtitle']");
             var bookModels = new ObservableCollection<BookModel>();
 
             foreach (var html in htmlDocument)

@@ -6,7 +6,7 @@ using BookParser.Core.Parser;
 
 namespace BookParser.MVVM.Model
 {
-    public class MainWindowWorkModel : HTMLParser
+    public class MainWindowWorkModel : HTMLBookParser
     {
         #region Методы
 
@@ -24,7 +24,8 @@ namespace BookParser.MVVM.Model
                 {
                     _parseCancelTokenSrc.Token.ThrowIfCancellationRequested();
                     await InitBooksParse("https://litmore.ru/17611-antropolog-na-marse.html", 
-                                         "https://litmore.ru/17833-neksus.html");
+                                         "https://litmore.ru/17833-neksus.html",
+                                         "https://litmore.ru/tegi/%D1%81%D0%BE%D1%86%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F+%D0%BF%D1%80%D0%BE%D0%B7%D0%B0/");
                 }
                 catch (OperationCanceledException)
                 {
@@ -32,6 +33,7 @@ namespace BookParser.MVVM.Model
                 }
             }
         }
+
 
         private static async Task InitBooksParse(params String[] urls)
         {
@@ -41,15 +43,7 @@ namespace BookParser.MVVM.Model
                 return;
             }
 
-            String[] htmlPages = new String[urls.Length];
-
-            for (Int32 i = 0; i < urls.Length; i++)
-            {
-                htmlPages[i] = await GetHtmlFromUrl(urls[i]);
-                await Task.Delay(1000);
-            }
-
-            BuildBookModels(htmlPages);
+            var tempAnswer = await BooksParse(urls);
         }
 
         public static void CancelParse()
@@ -63,3 +57,4 @@ namespace BookParser.MVVM.Model
         #endregion
     }
 }
+
