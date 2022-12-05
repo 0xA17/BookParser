@@ -1,7 +1,8 @@
-﻿using HtmlAgilityPack;
-using System;
+﻿using System;
 using System.Net.Http;
+using HtmlAgilityPack;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace BookParser.Core.Web
 {
@@ -58,7 +59,10 @@ namespace BookParser.Core.Web
 
                 try
                 {
-                    htmlDocument[i].LoadHtml(htmlPages[i]);
+                    if (htmlPages[i] is not null)
+                    {
+                        htmlDocument[i].LoadHtml(htmlPages[i]);
+                    }
                 }
                 catch
                 {
@@ -67,6 +71,38 @@ namespace BookParser.Core.Web
             }
 
             return htmlDocument;
+        }
+
+        public static Task<Boolean> ParseHtmlDocuments(
+            in ObservableCollection<String[]> urls,
+            out ObservableCollection<HtmlDocument[]> htmlDocuments)
+        {
+            htmlDocuments = new ObservableCollection<HtmlDocument[]>();
+
+            return ParseHtmlDocumentsInternal(urls, htmlDocuments);
+        }
+
+        private static async Task<Boolean> ParseHtmlDocumentsInternal(
+            ObservableCollection<String[]> urls,
+            ObservableCollection<HtmlDocument[]> htmlDocuments)
+        {
+            if (urls is null ||
+                urls.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var page in urls)
+            {
+                htmlDocuments.Add(GetLoadedHtmlDoc(htmlPages: await GetHtmlPagesFromUrls(page)));
+            }
+
+            if (htmlDocuments.Count == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
