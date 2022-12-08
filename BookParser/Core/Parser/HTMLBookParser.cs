@@ -17,7 +17,7 @@ namespace BookParser.Core.Parser
                 return null;
             }
 
-            HtmlNode[] statinfoNodes = html.DocumentNode?.
+            var statinfoNodes = html.DocumentNode?.
                                    SelectSingleNode("//div[@class='statinfo']")?.
                                    ChildNodes?.
                                    Where(x => x.Name == "ul")?.
@@ -38,10 +38,35 @@ namespace BookParser.Core.Parser
                 WriteYear = GetTargetNode(statinfoNodes, "Год написания")?.ChildNodes?.ToArray()?.Last()?.InnerText?.Replace(" ", String.Empty) ?? String.Empty,
                 Publisher = SelectNodeInnerText(html, "//*[@itemprop='publisher']") ?? String.Empty,
                 Isbn = SelectNodeInnerText(html, "//*[@itemprop='isbn']") ?? String.Empty,
-                Genres = GetGenres(htmlNode: GetTargetNode(statinfoNodes, "Жанр"), attributeName: "a") ?? null,
+                Genres = GetSequenceGenres(GetGenres(htmlNode: GetTargetNode(statinfoNodes, "Жанр"), attributeName: "a")) ?? null,
                 Series = GetTargetNode(statinfoNodes, "Серия")?.ChildNodes?.Where(x => x.Name == "a")?.First()?.InnerText ?? String.Empty,
                 Description = SelectNodeInnerText(html, "//*[@itemprop='description']") ?? String.Empty,
             };
+        }
+
+        private static String GetSequenceGenres(String[] genres)
+        {
+            if (genres is null || 
+                genres.Length == 0)
+            {
+                return null;
+            }
+
+            var sequenceGenres = String.Empty;
+            var lastGenre = genres.Last();
+
+            foreach (var genre in genres)
+            {
+                if (genre == lastGenre)
+                {
+                    sequenceGenres += $"{genre}.";
+                    continue;
+                }
+
+                sequenceGenres += $"{genre}, ";
+            }
+
+            return sequenceGenres;
         }
 
         private static String SelectNodeInnerText(HtmlDocument htmlDocument, String xPath)
@@ -71,7 +96,7 @@ namespace BookParser.Core.Parser
                 return null;
             }
 
-            String[] genres = new String[tmpNodes.Length];
+            var genres = new String[tmpNodes.Length];
 
             for (Byte i = 0; i < genres.Length; i++)
             {

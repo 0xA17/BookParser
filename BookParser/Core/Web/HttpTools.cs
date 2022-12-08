@@ -38,19 +38,25 @@ namespace BookParser.Core.Web
                 return null;
             }
 
-            String[] htmlPages = new String[urls.Length];
+            var htmlPages = new String[urls.Length];
 
             for (Int32 i = 0; i < urls.Length; i++)
             {
                 htmlPages[i] = await GetHtmlFromUrl(urls[i]);
-                await Task.Delay(1000);
+                await Task.Delay(4096);
             }
 
             return htmlPages;
         }
 
-        public static HtmlDocument[] GetLoadedHtmlDoc(string[] htmlPages)
+        public static HtmlDocument[] GetLoadedHtmlDoc(String[] htmlPages)
         {
+            if (htmlPages is null ||
+                htmlPages.Length == 0)
+            {
+                return null;
+            }
+
             var htmlDocument = new HtmlDocument[htmlPages.Length];
 
             for (Int32 i = 0; i < htmlPages.Length; i++)

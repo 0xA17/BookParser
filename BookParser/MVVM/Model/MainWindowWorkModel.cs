@@ -3,6 +3,8 @@ using System.Windows;
 using System.Threading;
 using System.Threading.Tasks;
 using BookParser.Core.Parser;
+using BookParser.Core.Providers;
+using System.Linq;
 
 namespace BookParser.MVVM.Model
 {
@@ -43,6 +45,7 @@ namespace BookParser.MVVM.Model
             }
 
             var tempAnswer = await BooksParse(urls);
+            PostgreSQLProvider.InsertBookModel(tempAnswer.ToArray());
         }
 
         public static void CancelParse()
@@ -56,4 +59,3 @@ namespace BookParser.MVVM.Model
         #endregion
     }
 }
-
