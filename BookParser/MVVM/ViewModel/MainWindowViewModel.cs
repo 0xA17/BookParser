@@ -1,16 +1,22 @@
 ﻿using System;
+using System.Windows;
 using BookParser.MVVM.Model;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using System.Windows;
 
 namespace BookParser.MVVM.ViewModel
 {
+    /// <summary>
+    /// View-модель главного окна.
+    /// </summary>
     class MainWindowViewModel : ObservableObject
     {
         #region Переменные
 
+        /// <summary>
+        /// Статус парсинга.
+        /// </summary>
         private Boolean _parseIsRunning;
         public Boolean ParseIsRunning
         {
@@ -27,16 +33,33 @@ namespace BookParser.MVVM.ViewModel
             }
         }
 
+        /// <summary>
+        /// Команда выполнения парсинга.
+        /// </summary>
         public IAsyncRelayCommand ExecuteParsing { get; }
+
+        /// <summary>
+        /// Команда заверщения парсинга.
+        /// </summary>
         public IRelayCommand CancelParsingCommand { get; }
 
+        /// <summary>
+        /// Команда завершения работы приложения.
+        /// </summary>
         public Core.Command.RelayCommand CloseWindow { get; set; }
+
+        /// <summary>
+        /// Команда сворачивания окна.
+        /// </summary>
         public Core.Command.RelayCommand MinimizeWindow { get; set; }
 
         #endregion
 
         #region Конструктор
 
+        /// <summary>
+        /// Конструктор View-модели.
+        /// </summary>
         public MainWindowViewModel()
         {
             CloseWindow = new Core.Command.RelayCommand(o =>
@@ -66,6 +89,10 @@ namespace BookParser.MVVM.ViewModel
 
         #region Методы
 
+        /// <summary>
+        /// Инициализирует процесс парсинга книг.
+        /// </summary>
+        /// <returns></returns>
         private async Task InitParseExecuteAsync()
         {
             ParseIsRunning = true;
@@ -77,11 +104,18 @@ namespace BookParser.MVVM.ViewModel
             UpdateCommandStatus();
         }
 
+        /// <summary>
+        /// Изменяет статус парсинга.
+        /// </summary>
+        /// <returns></returns>
         private Boolean ChangeParseExecute()
         {
             return !ParseIsRunning;
         }
 
+        /// <summary>
+        /// Обновляет статус комманды.
+        /// </summary>
         private void UpdateCommandStatus()
         {
             ExecuteParsing.NotifyCanExecuteChanged();

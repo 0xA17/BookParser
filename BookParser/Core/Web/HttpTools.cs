@@ -6,8 +6,16 @@ using System.Collections.ObjectModel;
 
 namespace BookParser.Core.Web
 {
+    /// <summary>
+    /// Предоставляет набор HTTP-инструментов.
+    /// </summary>
     public class HttpTools
     {
+        /// <summary>
+        /// Получает HTML-код заданного ресурса.
+        /// </summary>
+        /// <param name="url">Адрес ресурса.</param>
+        /// <returns>HTML-код ресурса.</returns>
         public static Task<String> GetHtmlFromUrl(String url)
         {
             if (String.IsNullOrEmpty(url))
@@ -30,6 +38,11 @@ namespace BookParser.Core.Web
             return answerFromGet;
         }
 
+        /// <summary>
+        /// Формирует массив HTML-кодов ресурсов.
+        /// </summary>
+        /// <param name="urls">Адреса ресурсов.</param>
+        /// <returns>Массив исходных HTML-кодов ресурсов.</returns>
         protected static async Task<String[]> GetHtmlPagesFromUrls(params String[] urls)
         {
             if (urls is null ||
@@ -49,6 +62,11 @@ namespace BookParser.Core.Web
             return htmlPages;
         }
 
+        /// <summary>
+        /// Формирует HTML-код ресурсов в тип HtmlDocument.
+        /// </summary>
+        /// <param name="htmlPages">HTML-код ресурса.</param>
+        /// <returns>HTML-код ресурсов в типе HtmlDocument.</returns>
         public static HtmlDocument[] GetLoadedHtmlDoc(String[] htmlPages)
         {
             if (htmlPages is null ||
@@ -79,6 +97,12 @@ namespace BookParser.Core.Web
             return htmlDocument;
         }
 
+        /// <summary>
+        /// Формирует коллекцию типа HtmlDocument по ссылкам на ресурсы.
+        /// </summary>
+        /// <param name="urls">Адреса ресурсов.</param>
+        /// <param name="htmlDocuments">Коллекция типа HtmlDocument.</param>
+        /// <returns>В случае успешного формирования - True, иначе - False.</returns>
         public static Task<Boolean> ParseHtmlDocuments(
             in ObservableCollection<String[]> urls,
             out ObservableCollection<HtmlDocument[]> htmlDocuments)
@@ -88,6 +112,12 @@ namespace BookParser.Core.Web
             return ParseHtmlDocumentsInternal(urls, htmlDocuments);
         }
 
+        /// <summary>
+        /// Формирует коллекцию типа HtmlDocument по ссылкам на ресурсы.
+        /// </summary>
+        /// <param name="urls">Адреса ресурсов.</param>
+        /// <param name="htmlDocuments">Коллекция типа HtmlDocument.</param>
+        /// <returns>В случае успешного формирования - True, иначе - False.</returns>
         private static async Task<Boolean> ParseHtmlDocumentsInternal(
             ObservableCollection<String[]> urls,
             ObservableCollection<HtmlDocument[]> htmlDocuments)

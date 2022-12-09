@@ -4,10 +4,18 @@ using BookParser.MVVM.Model;
 
 namespace BookParser.Core.Providers
 {
+    /// <summary>
+    /// Провайдер Postgre.
+    /// </summary>
     public class PostgreSQLProvider
     {
         #region Методы
 
+        /// <summary>
+        /// Реализует добавление модели книги в БД.
+        /// </summary>
+        /// <param name="bookModels">Модель книги.</param>
+        /// <returns>В случае успешного добавления - True, иначе, False.</returns>
         public static Boolean InsertBookModel(params BookModel[] bookModels)
         {
             if (bookModels is null ||

@@ -8,8 +8,16 @@ using System.Collections.ObjectModel;
 
 namespace BookParser.Core.Parser
 {
+    /// <summary>
+    /// Парсер книг по HTML.
+    /// </summary>
     public class HTMLBookParser : HttpTools
     {
+        /// <summary>
+        /// Парсинг данных о книге с целевого ресурса.
+        /// </summary>
+        /// <param name="html">HTML-код ресурса.</param>
+        /// <returns>Модель книги.</returns>
         private static BookModel ParseBookModel(HtmlDocument html)
         {
             if (html is null)
@@ -44,9 +52,14 @@ namespace BookParser.Core.Parser
             };
         }
 
+        /// <summary>
+        /// Формирует массив жанров в строку.
+        /// </summary>
+        /// <param name="genres">Массив жанров.</param>
+        /// <returns>Строка жанров.</returns>
         private static String GetSequenceGenres(String[] genres)
         {
-            if (genres is null || 
+            if (genres is null ||
                 genres.Length == 0)
             {
                 return null;
@@ -69,6 +82,12 @@ namespace BookParser.Core.Parser
             return sequenceGenres;
         }
 
+        /// <summary>
+        /// Получает внутренний текст заданного объекта с HTML-страницы.
+        /// </summary>
+        /// <param name="htmlDocument">HTML-страница</param>
+        /// <param name="xPath">Целевой объект.</param>
+        /// <returns>Внутренний тест объекта.</returns>
         private static String SelectNodeInnerText(HtmlDocument htmlDocument, String xPath)
         {
             if (htmlDocument is null ||
@@ -80,6 +99,12 @@ namespace BookParser.Core.Parser
             return htmlDocument.DocumentNode?.SelectSingleNode(xPath)?.InnerText ?? null;
         }
 
+        /// <summary>
+        /// Получает массив жанров по имени атрибута.
+        /// </summary>
+        /// <param name="htmlNode">HTML-ресурс.</param>
+        /// <param name="attributeName">Имя атрибута.</param>
+        /// <returns>Массив жанров.</returns>
         private static String[] GetGenres(HtmlNode htmlNode, String attributeName)
         {
             if (String.IsNullOrEmpty(attributeName) ||
@@ -106,6 +131,12 @@ namespace BookParser.Core.Parser
             return genres;
         }
 
+        /// <summary>
+        /// Возвращает целевой HTML-объект по заданному имени.
+        /// </summary>
+        /// <param name="htmlNodes">HTML-объекты.</param>
+        /// <param name="targetName">Целевое имя объекта.</param>
+        /// <returns>HTML-объект.</returns>
         private static HtmlNode GetTargetNode(HtmlNode[] htmlNodes, String targetName)
         {
             if (String.IsNullOrEmpty(targetName) ||
@@ -127,8 +158,15 @@ namespace BookParser.Core.Parser
             return null;
         }
 
+        /// <summary>
+        /// Проверяет массив ресурсов на наличие подборок книг. 
+        /// Если определяет страницу подборок, то добавляет все книги с данного ресурса.
+        /// </summary>
+        /// <param name="htmlDocumentPages">HTML-страницы.</param>
+        /// <param name="targetXPath">Критерий проверки на подборку.</param>
+        /// <returns>Сформированная коллекция книг.</returns>
         private static async Task<ObservableCollection<HtmlDocument>> SelectionBooksCheck(
-            HtmlDocument[] htmlDocumentPages, 
+            HtmlDocument[] htmlDocumentPages,
             String targetXPath)
         {
             if (htmlDocumentPages is null ||
@@ -162,7 +200,7 @@ namespace BookParser.Core.Parser
             }
 
             if (!await ParseHtmlDocuments(
-                 in bookUrls, 
+                 in bookUrls,
                  out ObservableCollection<HtmlDocument[]> bookHtmlDocuments))
             {
                 /*FAIL*/
@@ -178,8 +216,14 @@ namespace BookParser.Core.Parser
             return bookPages;
         }
 
+        /// <summary>
+        /// Формирует страницы кинг с коллекции HTML-ресурсов.
+        /// </summary>
+        /// <param name="bookPages">Коллеция книг.</param>
+        /// <param name="bookHtmlDocuments">Коллекция HTML-ресурсов.</param>
+        /// <returns>В случае успешного добавления - True, иначе - False.</returns>
         private static Boolean ParseBookPages(
-            ref ObservableCollection<HtmlDocument> bookPages, 
+            ref ObservableCollection<HtmlDocument> bookPages,
             in ObservableCollection<HtmlDocument[]> bookHtmlDocuments)
         {
             if (bookPages is null ||
@@ -207,8 +251,14 @@ namespace BookParser.Core.Parser
             return true;
         }
 
+        /// <summary>
+        /// Формирует ссылки на книги с заданной страницы.
+        /// </summary>
+        /// <param name="selectionPages">Заданная страница.</param>
+        /// <param name="bookUrls">Ссылки на книги.</param>
+        /// <returns>True, если параметр ссылки успешно добавлены; в противном случае — false.</returns>
         private static Boolean ParseBooksUrls(
-            in ObservableCollection<HtmlDocument> selectionPages, 
+            in ObservableCollection<HtmlDocument> selectionPages,
             out ObservableCollection<String[]> bookUrls)
         {
             if (selectionPages is null ||
@@ -217,7 +267,7 @@ namespace BookParser.Core.Parser
                 bookUrls = null;
                 return false;
             }
-            
+
             bookUrls = new ObservableCollection<String[]>();
 
             foreach (var page in selectionPages)
@@ -238,6 +288,11 @@ namespace BookParser.Core.Parser
             return true;
         }
 
+        /// <summary>
+        /// Получает массив ссылок на книги с заданного ресурса.
+        /// </summary>
+        /// <param name="htmlDocument">Целевой ресурс.</param>
+        /// <returns>Массив ссылок.</returns>
         private static String[] GetBooksUrls(HtmlDocument htmlDocument)
         {
             if (htmlDocument is null)
@@ -251,6 +306,11 @@ namespace BookParser.Core.Parser
                    Select(x => x.Attributes.First().Value)?.ToArray() ?? null;
         }
 
+        /// <summary>
+        /// Парсит книги с ресурсов, формируя модели книг.
+        /// </summary>
+        /// <param name="urls">Ссылки на ресурсы.</param>
+        /// <returns>Коллеция моделей книг.</returns>
         protected static async Task<ObservableCollection<BookModel>> BooksParse(params String[] urls)
         {
             if (urls is null ||
@@ -262,6 +322,11 @@ namespace BookParser.Core.Parser
             return await BuildBookModels(htmlPages: await GetHtmlPagesFromUrls(urls));
         }
 
+        /// <summary>
+        /// Формирует модели книг.
+        /// </summary>
+        /// <param name="htmlPages">Исходные HTML-страницы книг.</param>
+        /// <returns></returns>
         private static async Task<ObservableCollection<BookModel>> BuildBookModels(params String[] htmlPages)
         {
             if (htmlPages is null ||
@@ -269,7 +334,7 @@ namespace BookParser.Core.Parser
             {
                 return null;
             }
-            
+
             var bookModels = new ObservableCollection<BookModel>();
 
             foreach (var html in await SelectionBooksCheck(
