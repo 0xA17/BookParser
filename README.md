@@ -10,7 +10,7 @@ BookParser - это парсер данных о книгах, который с
 
 Скачиваем исходный код проекта или выполняем команду:
 ```
-git clone https://github.com/M-R-8/BookParser -recursive
+git clone https://github.com/0xA17/BookParser -recursive
 ```
 
 ### 2.	Установка зависимостей программного обеспечения
